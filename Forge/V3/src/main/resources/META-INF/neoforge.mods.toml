@@ -6,7 +6,7 @@ issueTrackerURL="https://github.com/xfl03/MCCustomSkinLoader/issues"
 modId="customskinloader"
 version="${modFullVersion}"
 displayName="CustomSkinLoader"
-authors="xfl03, JLChnToZ"
+authors="xfl03, JLChnToZ, ZekerZhayard"
 displayTest="IGNORE_ALL_VERSION"
 description='''
 Custom Skin Loader for Minecraft
