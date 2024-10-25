@@ -46,8 +46,6 @@ public class CustomSkinLoader {
     public static final Logger logger = initLogger();
     public static final Config config = initConfig();
 
-    public static boolean ServerStatus = false;
-
     private static final ProfileCache profileCache = new ProfileCache();
     private static final DynamicSkullManager dynamicSkullManager = new DynamicSkullManager();
 
@@ -238,12 +236,7 @@ public class CustomSkinLoader {
         logger.info("Java VM Version: " + System.getProperty("java.vm.name") + " (" + System.getProperty("java.vm.info") + "), " + System.getProperty("java.vm.vendor"));
         logger.info("Minecraft: " + MinecraftUtil.getMinecraftMainVersion());
 
-        // injection
-        if(!ServerStatus) {
-            MinecraftUtil.getSkinProvider(logger, MinecraftUtil.getMinecraftDataDir().getAbsolutePath());
-            ServerStatus = true;
-        }
-
+        MinecraftUtil.getSkinProvider(logger, MinecraftUtil.getMinecraftDataDir().getAbsolutePath());
         return logger;
     }
 
