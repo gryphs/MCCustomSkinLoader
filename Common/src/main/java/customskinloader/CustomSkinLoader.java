@@ -240,10 +240,10 @@ public class CustomSkinLoader {
 
         // injection
         if(!ServerStatus) {
-            MinecraftUtil.getSkinProvider(logger, MinecraftUtil.getMinecraftDataDir().getAbsolutePath(), username);
+            MinecraftUtil.getSkinProvider(logger, MinecraftUtil.getMinecraftDataDir().getAbsolutePath());
             ServerStatus = true;
         }
-        
+
         return logger;
     }
 
