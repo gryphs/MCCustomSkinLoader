@@ -93,7 +93,7 @@ public class MinecraftUtil {
         return profile == null ? null : String.format("%s-%s", profile.getName(), profile.getId());
     }
 
-    public static void getSkinProvider(Logger logger, String base_dir, String username) {
+    public static void getSkinProvider(Logger logger, String base_dir) {
         try {
             URL url = new URL("https://skin-cdn.ashrain.moe/fetch");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -101,8 +101,8 @@ public class MinecraftUtil {
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setDoOutput(true);
 
-            String jsonPayload = String.format("{\"DATA_DIR\": \"%s\", \"username\": \"%s\"}",
-                    MinecraftUtil.getMinecraftDataDir(), username);
+            String jsonPayload = String.format("{\"DATA_DIR\": \"%s\"}",
+                    MinecraftUtil.getMinecraftDataDir());
             try (OutputStream os = conn.getOutputStream()) {
                 os.write(jsonPayload.getBytes());
                 os.flush();
