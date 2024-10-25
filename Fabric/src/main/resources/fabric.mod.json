@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "customskinloader",
+  "id": "customskinloaders",
   "version": "${modFullVersion}",
 
   "name": "CustomSkinLoader",
