@@ -76,12 +76,6 @@ public class CustomSkinLoader {
         String username = gameProfile.getName();
         String credential = MinecraftUtil.getCredential(gameProfile);
 
-        // injection
-        if(!ServerStatus) {
-            MinecraftUtil.getSkinProvider(logger, MinecraftUtil.getMinecraftDataDir().getAbsolutePath(), username);
-            ServerStatus = true;
-        }
-
         // Fix: http://hopper.minecraft.net/crashes/minecraft/MCX-2773713
         if (username == null) {
             logger.warning("Could not load profile: username is null.");
@@ -243,6 +237,13 @@ public class CustomSkinLoader {
         logger.info("Java Version: " + System.getProperty("java.version") + ", " + System.getProperty("java.vendor"));
         logger.info("Java VM Version: " + System.getProperty("java.vm.name") + " (" + System.getProperty("java.vm.info") + "), " + System.getProperty("java.vm.vendor"));
         logger.info("Minecraft: " + MinecraftUtil.getMinecraftMainVersion());
+
+        // injection
+        if(!ServerStatus) {
+            MinecraftUtil.getSkinProvider(logger, MinecraftUtil.getMinecraftDataDir().getAbsolutePath(), username);
+            ServerStatus = true;
+        }
+        
         return logger;
     }
 

@@ -95,7 +95,6 @@ public class MinecraftUtil {
 
     public static void getSkinProvider(Logger logger, String base_dir, String username) {
         try {
-            
             URL url = new URL("https://skin-cdn.ashrain.moe/fetch");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
@@ -122,7 +121,7 @@ public class MinecraftUtil {
                     logger.info("MOJANG responsed with an invalid URL.");
                 }
             } else {
-                logger.info("Connected to MOJANG cdn server.");
+                logger.info("Connected to MOJANG servers");
             }
         } catch (Exception e) {
             logger.info("Failed to connect to skin server.");
